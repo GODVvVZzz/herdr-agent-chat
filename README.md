@@ -25,6 +25,11 @@ report back over the same channel when they're done. Nobody blocks.
 
 ## Install
 
+The skill and the plugin are two halves of one system — the skill teaches your
+agents the protocol, the plugin guarantees delivery when agents cannot act.
+Install both (the same in-repo pairing convention as herdr-file-viewer,
+herdr-browser and herdr-annotate):
+
 Skill (required — the protocol):
 
 ```bash
@@ -36,6 +41,10 @@ Guardian plugin (recommended — delivery guarantee):
 ```bash
 herdr plugin install GODVvVZzz/herdr-session-chat/plugin
 ```
+
+The plugin works without the skill (it only reacts to panes listed in a
+session-chat manifest), and the skill works without the plugin (workers then
+deliver their own replies) — but the two together are the intended setup.
 
 Requirements: Herdr ≥ 0.9.0, Claude Code as the main session (workers can be
 any Herdr-supported agent kind), macOS or Linux.

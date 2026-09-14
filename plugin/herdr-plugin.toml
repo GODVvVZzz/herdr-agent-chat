@@ -9,7 +9,7 @@ id = "herdr-session-chat.watch"
 name = "Herdr Session Chat Watch"
 version = "0.1.0"
 min_herdr_version = "0.9.0"
-description = "session-chat delivery guardian: forward blocked workers, deliver pending replies, report dead workers, toast the human"
+description = "session-chat delivery guardian: forward blocked workers, deliver pending replies, report dead workers, toast the human. Pairs with the herdr-session-chat skill (protocol instructions for the agents)."
 platforms = ["macos", "linux"]
 
 [[events]]
