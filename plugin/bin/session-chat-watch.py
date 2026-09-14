@@ -64,8 +64,13 @@ def deliver(pf, main_pane, name):
 
 
 def main():
+    # Only the owner may read or write session-chat state: pending receipts are
+    # delivery credentials, and a world-writable directory would let any local
+    # user inject messages into the main session.
+    ROOT.chmod(0o700) if ROOT.exists() else None
     for d in (PENDING, SENT, NOTIFIED):
         d.mkdir(parents=True, exist_ok=True)
+        d.chmod(0o700)
 
     def log(msg):
         try:

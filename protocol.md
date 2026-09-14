@@ -48,6 +48,11 @@ contains no `$HERDR` residue.
 Root directory: `/tmp/session-chat/` (a fixed path keeps every participant and
 the guardian in sync without configuration; it is scratch space by design).
 
+The root and its subdirectories MUST be owner-only (mode `0700`). Pending
+receipts are delivery credentials — a world-writable root would let any local
+user forge a receipt and inject messages into the main session. The guardian
+enforces the mode on every invocation.
+
 ### `manifest.json` — dispatch registry (written by main)
 
 ```json
