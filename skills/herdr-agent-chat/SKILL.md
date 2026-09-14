@@ -1,9 +1,9 @@
 ---
-name: herdr-session-chat
-description: "Chat-like delegation over Herdr panes: dispatch tasks to permission-free worker sessions in new panes; workers report back over the same channel while you keep talking to the user. Use only when running inside Herdr (HERDR_ENV=1) and the user wants to delegate tasks to panes, spawn parallel sub-sessions, or mentions session-chat / 派活 / 委派子任务 / 开 pane 干活. Not for plain terminals."
+name: herdr-agent-chat
+description: "Chat-like delegation over Herdr panes: dispatch tasks to permission-free worker sessions in new panes; workers report back over the same channel while you keep talking to the user. Use only when running inside Herdr (HERDR_ENV=1) and the user wants to delegate tasks to panes, spawn parallel sub-sessions, or mentions agent-chat / 派活 / 委派子任务 / 开 pane 干活. Not for plain terminals."
 ---
 
-# Session Chat — chat-like delegation across Herdr panes
+# Agent Chat — chat-like delegation across Herdr panes
 
 Treat Herdr as a chat channel between sessions: the main session (you) opens
 panes running permission-free claude workers, sends tasks as messages, and
@@ -29,7 +29,7 @@ passes you may combine this with the herdr skill; this skill is self-contained.
 
 ```bash
 # 1. directory for result files
-mkdir -p /tmp/session-chat
+mkdir -p /tmp/herdr-agent-chat
 
 # 2. geometry first: wide pane → right, narrow or tall → down
 herdr pane layout --pane "$HERDR_PANE_ID"
@@ -49,13 +49,13 @@ herdr agent prompt sc-<task> "<task description>
 
 Rules:
 - Work autonomously to completion; do not stop to ask for confirmation.
-- When done, write the full result (summary, conclusions, key files) to /tmp/session-chat/<task>.md
-- Write a delivery receipt /tmp/session-chat/pending/<your-pane-ID>.json — the file
+- When done, write the full result (summary, conclusions, key files) to /tmp/herdr-agent-chat/<task>.md
+- Write a delivery receipt /tmp/herdr-agent-chat/pending/<your-pane-ID>.json — the file
   name is the value of YOUR HERDR_PANE_ID environment variable (never paste the
   variable name literally), containing:
-  {"target":"<main-pane-ID-literal>","summary":"<one-line summary>","detail":"/tmp/session-chat/<task>.md"}
+  {"target":"<main-pane-ID-literal>","summary":"<one-line summary>","detail":"/tmp/herdr-agent-chat/<task>.md"}
 - Then send the reply (execute verbatim; the target is the main session's pane ID literal):
-  herdr agent prompt <main-pane-ID-literal> '[session-chat] <task>: <one-line summary> details: /tmp/session-chat/<task>.md'
+  herdr agent prompt <main-pane-ID-literal> '[agent-chat] <task>: <one-line summary> details: /tmp/herdr-agent-chat/<task>.md'
 - After a successful reply, delete the receipt file — it only exists so the
   guardian plugin can deliver on your behalf if the reply failed.
 - If the reply is rejected with agent_blocked, retry once after 30 s; if it still
@@ -79,7 +79,7 @@ Key points:
   the user — never work around it.
 - Parallel workers: one pane and one unique name each; avoid consecutive
   same-direction splits (alternate right/down or use `--ratio`).
-- **Always write the dispatch registry** `/tmp/session-chat/manifest.json`:
+- **Always write the dispatch registry** `/tmp/herdr-agent-chat/manifest.json`:
   `{"main_pane":"<your-pane-ID>","tasks":[{"name","pane_id","task","dispatched_at","status":"outstanding"}]}`.
   It is the routing contract of the guardian plugin — keep the field names stable.
   Set a task's `status` to `done` after verifying its reply; mark `failed` when a
@@ -87,12 +87,12 @@ Key points:
   the update lands; live checks use pending receipts and `agent get`.
 - Workers inherit the pane's cwd and environment; a fresh claude session carries
   your global skills and the `HERDR_*` variables and can execute the reply command.
-- Language: protocol markers (`[session-chat]`, field keywords) are fixed; the task
+- Language: protocol markers (`[agent-chat]`, field keywords) are fixed; the task
   text, summaries and your reports follow the user's conversation language.
 
 ## Receiving replies and multi-turn threads
 
-- A worker reply arrives as input starting with `[session-chat]`. If you are idle
+- A worker reply arrives as input starting with `[agent-chat]`. If you are idle
   it opens a new turn immediately; if you are working it queues until the turn
   ends. On receipt: **read the detail file → verify → update the manifest → report
   to the user in one or two sentences** — never paste raw output. For parallel
@@ -115,7 +115,7 @@ herdr agent read sc-<task> --source recent-unwrapped --lines 120
 
 A reply rejected with `agent_blocked` leaves the result in the files; read them
 directly. If your own pane is not recognized as an agent (replies have nowhere to
-land), tell the user to check `/tmp/session-chat/` manually.
+land), tell the user to check `/tmp/herdr-agent-chat/` manually.
 
 - A missing worker (`agent_not_found`): report honestly that the task is
   unfinished and **never respawn on your own**; mark the manifest entry `failed` —

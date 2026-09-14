@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""session-chat transport guardian.
+"""agent-chat transport guardian.
 
 Reads one herdr plugin event from HERDR_PLUGIN_EVENT_JSON and routes the
 signals agents cannot send themselves. State lives on disk:
 
-  /tmp/session-chat/manifest.json        written by the main session at dispatch
+  /tmp/herdr-agent-chat/manifest.json        written by the main session at dispatch
       {"main_pane": "wY:p1", "tasks": [{"name","pane_id","task","dispatched_at","status"}, ...]}
-  /tmp/session-chat/pending/<pane>.json  written by a worker with a finished result
-      {"target": "...", "summary": "...", "detail": "/tmp/session-chat/<task>.md"}
-  /tmp/session-chat/sent/                archived pending files (dedupe by move)
-  /tmp/session-chat/.notified/           one-shot markers so alarms fire once
+  /tmp/herdr-agent-chat/pending/<pane>.json  written by a worker with a finished result
+      {"target": "...", "summary": "...", "detail": "/tmp/herdr-agent-chat/<task>.md"}
+  /tmp/herdr-agent-chat/sent/                archived pending files (dedupe by move)
+  /tmp/herdr-agent-chat/.notified/           one-shot markers so alarms fire once
 
 Delivery rules:
   worker idle/done + pending exists   -> deliver the reply, archive pending
@@ -25,7 +25,7 @@ import pathlib
 import subprocess
 import sys
 
-ROOT = pathlib.Path("/tmp/session-chat")
+ROOT = pathlib.Path("/tmp/herdr-agent-chat")
 PENDING = ROOT / "pending"
 SENT = ROOT / "sent"
 NOTIFIED = ROOT / ".notified"
@@ -42,7 +42,7 @@ def herdr(args, timeout=20):
 
 
 def notify(body):
-    herdr(["notification", "show", "session-chat", "--body", body, "--sound", "request"])
+    herdr(["notification", "show", "agent-chat", "--body", body, "--sound", "request"])
 
 
 def deliver(pf, main_pane, name):
@@ -53,7 +53,7 @@ def deliver(pf, main_pane, name):
     target = p.get("target") or main_pane
     summary = p.get("summary", "completed")
     detail = p.get("detail", "")
-    text = f"[session-chat] {name}: {summary}"
+    text = f"[agent-chat] {name}: {summary}"
     if detail:
         text += f" details: {detail}"
     result = herdr(["agent", "prompt", target, text])
@@ -64,7 +64,7 @@ def deliver(pf, main_pane, name):
 
 
 def main():
-    # Only the owner may read or write session-chat state: pending receipts are
+    # Only the owner may read or write agent-chat state: pending receipts are
     # delivery credentials, and a world-writable directory would let any local
     # user inject messages into the main session.
     ROOT.chmod(0o700) if ROOT.exists() else None
@@ -129,7 +129,7 @@ def main():
             marker.touch()
             herdr([
                 "agent", "prompt", main_pane,
-                f"[session-chat] ⚠ {name} blocked — needs approval or an answer; inspect with agent read",
+                f"[agent-chat] ⚠ {name} blocked — needs approval or an answer; inspect with agent read",
             ])
             notify(f"{name} blocked — main session notified")
 
@@ -144,7 +144,7 @@ def main():
         marker = NOTIFIED / f"{pane_id}.dead"
         if not marker.exists():
             marker.touch()
-            herdr(["agent", "prompt", main_pane, f"[session-chat] ☠ {name} exited — task unfinished"])
+            herdr(["agent", "prompt", main_pane, f"[agent-chat] ☠ {name} exited — task unfinished"])
             notify(f"{name} exited")
 
 

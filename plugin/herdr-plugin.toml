@@ -1,25 +1,25 @@
-# herdr-session-chat transport guardian.
+# herdr-agent-chat transport guardian.
 #
 # The skill (protocol) drives agents while they can act. This plugin covers the
 # moments they cannot: a blocked worker cannot report itself, a dead worker
 # reports nothing, and a blocked main session cannot run any code to notify
 # the human. One event-driven process, agent-agnostic, zero polling.
 
-id = "herdr-session-chat.watch"
-name = "Herdr Session Chat Watch"
+id = "herdr-agent-chat.watch"
+name = "Herdr Agent Chat Watch"
 version = "0.1.0"
 min_herdr_version = "0.9.0"
-description = "session-chat delivery guardian: forward blocked workers, deliver pending replies, report dead workers, toast the human. Pairs with the herdr-session-chat skill (protocol instructions for the agents)."
+description = "agent-chat delivery guardian: forward blocked workers, deliver pending replies, report dead workers, toast the human. Pairs with the herdr-agent-chat skill (protocol instructions for the agents)."
 platforms = ["macos", "linux"]
 
 [[events]]
 on = "pane.agent_status_changed"
-command = ["python3", "bin/session-chat-watch.py"]
+command = ["python3", "bin/agent-chat-watch.py"]
 
 [[events]]
 on = "pane.exited"
-command = ["python3", "bin/session-chat-watch.py"]
+command = ["python3", "bin/agent-chat-watch.py"]
 
 [[events]]
 on = "pane.closed"
-command = ["python3", "bin/session-chat-watch.py"]
+command = ["python3", "bin/agent-chat-watch.py"]

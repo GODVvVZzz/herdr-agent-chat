@@ -1,6 +1,6 @@
-# session-chat Protocol
+# agent-chat Protocol
 
-session-chat turns [Herdr](https://herdr.dev) panes into a chat network between
+agent-chat turns [Herdr](https://herdr.dev) panes into a chat network between
 agent sessions. A **main session** (the agent a human talks to) dispatches tasks
 to **worker sessions** (permission-free agents in sibling panes). Workers do the
 work, write results to files, and report back over the same channel — without
@@ -11,7 +11,7 @@ The protocol has three layers with one boundary rule:
 > **While an agent can act, the protocol drives it. When it cannot act
 > (blocked, dead, forgot), the guardian plugin takes over.**
 
-- **Skill** (this repo, `skills/herdr-session-chat/`) — instructions for agent
+- **Skill** (this repo, `skills/herdr-agent-chat/`) — instructions for agent
   sessions. Reference implementation targets Claude Code, but every rule below
   is agent-agnostic.
 - **Guardian plugin** (`plugin/`) — a Herdr plugin that subscribes to pane
@@ -45,7 +45,7 @@ contains no `$HERDR` residue.
 
 ## State files
 
-Root directory: `/tmp/session-chat/` (a fixed path keeps every participant and
+Root directory: `/tmp/herdr-agent-chat/` (a fixed path keeps every participant and
 the guardian in sync without configuration; it is scratch space by design).
 
 The root and its subdirectories MUST be owner-only (mode `0700`). Pending
@@ -84,7 +84,7 @@ enforces the mode on every invocation.
 {
   "target": "wY:p1",
   "summary": "auth test fixed, 3 files changed",
-  "detail": "/tmp/session-chat/sc-auth-fix.md"
+  "detail": "/tmp/herdr-agent-chat/sc-auth-fix.md"
 }
 ```
 
@@ -103,7 +103,7 @@ marker is cleared when the worker resumes `working`.
 ### `<task>.md` — full results
 
 Workers write complete results (summaries, conclusions, touched files) to
-`/tmp/session-chat/<task>.md`. Messages carry only a one-line summary plus the
+`/tmp/herdr-agent-chat/<task>.md`. Messages carry only a one-line summary plus the
 path; the file is the source of truth. A settled lifecycle state never counts
 as proof of work — the main session reads the file before reporting to the
 human.
@@ -115,14 +115,14 @@ All inter-session messages are submitted with `herdr agent prompt <pane-id>
 line, three shapes:
 
 ```
-[session-chat] <name>: <one-line summary> details: <result path>   # normal report
-[session-chat] ⚠ <name> blocked — needs approval or an answer      # worker blocked (guardian)
-[session-chat] ☠ <name> exited — task unfinished                   # worker died (guardian)
+[agent-chat] <name>: <one-line summary> details: <result path>   # normal report
+[agent-chat] ⚠ <name> blocked — needs approval or an answer      # worker blocked (guardian)
+[agent-chat] ☠ <name> exited — task unfinished                   # worker died (guardian)
 ```
 
 ## Language
 
-Wire markers are fixed ASCII and never localized: the `[session-chat]` prefix,
+Wire markers are fixed ASCII and never localized: the `[agent-chat]` prefix,
 the `⚠`/`☠` alarm symbols, the `details:` field keyword, and the guardian's fixed
 short phrases. Everything humans read — task text sent to workers, reply
 summaries, worker-written results, and reports to the user — follows the language

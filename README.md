@@ -1,4 +1,4 @@
-# herdr-session-chat
+# herdr-agent-chat
 
 Chat-like delegation between terminal agents running in
 [Herdr](https://herdr.dev). Your main session spawns permission-free worker
@@ -16,7 +16,7 @@ report back over the same channel when they're done. Nobody blocks.
 
 ## Why not built-in subagents?
 
-| | built-in subagents | herdr-session-chat workers |
+| | built-in subagents | herdr-agent-chat workers |
 |---|---|---|
 | Visibility | hidden | a real pane you can watch and jump into at any time |
 | Lifetime | one-shot | persistent sessions — send follow-ups to the same worker |
@@ -33,17 +33,17 @@ herdr-browser and herdr-annotate):
 Skill (required — the protocol):
 
 ```bash
-npx skills add GODVvVZzz/herdr-session-chat --skill herdr-session-chat -g
+npx skills add GODVvVZzz/herdr-agent-chat --skill herdr-agent-chat -g
 ```
 
 Guardian plugin (recommended — delivery guarantee):
 
 ```bash
-herdr plugin install GODVvVZzz/herdr-session-chat/plugin
+herdr plugin install GODVvVZzz/herdr-agent-chat/plugin
 ```
 
 The plugin works without the skill (it only reacts to panes listed in a
-session-chat manifest), and the skill works without the plugin (workers then
+agent-chat manifest), and the skill works without the plugin (workers then
 deliver their own replies) — but the two together are the intended setup.
 
 Requirements: Herdr ≥ 0.9.0, Claude Code as the main session (workers can be
@@ -56,7 +56,7 @@ Inside Herdr, just tell your main session what to delegate:
 > 把这两个测试任务派出去,跑完告诉我结果
 
 The main session will split panes, start workers, dispatch, and keep chatting
-with you. Worker replies arrive as `[session-chat] …` messages and each one is
+with you. Worker replies arrive as `[agent-chat] …` messages and each one is
 verified against its result file before being summarized to you. Progress
 questions ("跑到哪了") are answered from the dispatch registry without waiting
 on anyone.
@@ -66,7 +66,7 @@ on anyone.
 One boundary rule: **while an agent can act, the protocol drives it; when it
 cannot — blocked, dead, or silent — the guardian plugin takes over.**
 
-- `skills/herdr-session-chat/SKILL.md` — the protocol as agent instructions:
+- `skills/herdr-agent-chat/SKILL.md` — the protocol as agent instructions:
   non-blocking dispatch, literal-address replies, a dispatch registry
   (`manifest.json`), pending receipts, blocked-dialog classification
   (mechanical → answer with least privilege; substantive → ask the human),
