@@ -51,11 +51,11 @@ def deliver(pf, main_pane, name):
     except (json.JSONDecodeError, OSError):
         return False
     target = p.get("target") or main_pane
-    summary = p.get("summary", "已完成")
+    summary = p.get("summary", "completed")
     detail = p.get("detail", "")
     text = f"[session-chat] {name}: {summary}"
     if detail:
-        text += f" 详情: {detail}"
+        text += f" details: {detail}"
     result = herdr(["agent", "prompt", target, text])
     if result is None or result.returncode != 0:
         return False
@@ -121,7 +121,7 @@ def main():
         pf = PENDING / f"{pane_id}.json"
         if pf.exists():
             deliver(pf, main_pane, name)
-            notify(f"{name} 完成")
+            notify(f"{name} completed")
 
     elif kind == "pane_agent_status_changed" and status == "blocked":
         marker = NOTIFIED / f"{pane_id}.blocked"
@@ -129,9 +129,9 @@ def main():
             marker.touch()
             herdr([
                 "agent", "prompt", main_pane,
-                f"[session-chat] ⚠ {name} blocked,需要审批/回答,详情用 agent read 查看",
+                f"[session-chat] ⚠ {name} blocked — needs approval or an answer; inspect with agent read",
             ])
-            notify(f"{name} 被阻塞,已通知主会话")
+            notify(f"{name} blocked — main session notified")
 
     elif kind == "pane_agent_status_changed" and status == "working":
         marker = NOTIFIED / f"{pane_id}.blocked"
@@ -144,8 +144,8 @@ def main():
         marker = NOTIFIED / f"{pane_id}.dead"
         if not marker.exists():
             marker.touch()
-            herdr(["agent", "prompt", main_pane, f"[session-chat] ☠ {name} 进程退出,任务未完成"])
-            notify(f"{name} 进程退出")
+            herdr(["agent", "prompt", main_pane, f"[session-chat] ☠ {name} exited — task unfinished"])
+            notify(f"{name} exited")
 
 
 if __name__ == "__main__":

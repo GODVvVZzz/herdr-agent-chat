@@ -115,10 +115,20 @@ All inter-session messages are submitted with `herdr agent prompt <pane-id>
 line, three shapes:
 
 ```
-[session-chat] <name>: <one-line summary> 详情: <result path>     # normal report
-[session-chat] ⚠ <name> blocked,需要审批/回答…                    # worker blocked (guardian)
-[session-chat] ☠ <name> 进程退出,任务未完成                        # worker died (guardian)
+[session-chat] <name>: <one-line summary> details: <result path>   # normal report
+[session-chat] ⚠ <name> blocked — needs approval or an answer      # worker blocked (guardian)
+[session-chat] ☠ <name> exited — task unfinished                   # worker died (guardian)
 ```
+
+## Language
+
+Wire markers are fixed ASCII and never localized: the `[session-chat]` prefix,
+the `⚠`/`☠` alarm symbols, the `details:` field keyword, and the guardian's fixed
+short phrases. Everything humans read — task text sent to workers, reply
+summaries, worker-written results, and reports to the user — follows the language
+of the user's conversation with the main session. The guardian has no language
+awareness: it emits fixed English phrases, and the main session relays them to
+the human in the conversation language.
 
 Replies land in the main session's input box: immediately if it is idle, or
 queued until its current turn ends. Each reply opens exactly one turn.
