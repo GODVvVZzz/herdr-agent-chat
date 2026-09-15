@@ -59,15 +59,13 @@ any Herdr-supported agent kind), macOS or Linux.
 
 Inside Herdr, just tell your main session what to delegate:
 
-> 把这两个测试任务派出去,跑完告诉我结果
->
 > dispatch these two tasks to workers and report back when they're done
 
 The main session will split panes, start workers, dispatch, and keep chatting
 with you. Worker replies arrive as `[agent-chat] …` messages and each one is
 verified against its result file before being summarized to you. Progress
-questions ("跑到哪了") are answered from the dispatch registry without waiting
-on anyone.
+questions ("how far along is it?") are answered from the dispatch registry
+without waiting on anyone.
 
 ## Architecture
 
