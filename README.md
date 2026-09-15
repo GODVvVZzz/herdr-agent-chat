@@ -1,5 +1,9 @@
 # herdr-agent-chat
 
+<p align="center">
+  English · <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 Chat-like delegation between terminal agents running in
 [Herdr](https://herdr.dev). Your main session spawns permission-free worker
 sessions in sibling panes, hands them tasks, and keeps talking to you — workers
@@ -54,6 +58,8 @@ any Herdr-supported agent kind), macOS or Linux.
 Inside Herdr, just tell your main session what to delegate:
 
 > 把这两个测试任务派出去,跑完告诉我结果
+>
+> dispatch these two tasks to workers and report back when they're done
 
 The main session will split panes, start workers, dispatch, and keep chatting
 with you. Worker replies arrive as `[agent-chat] …` messages and each one is
