@@ -78,7 +78,11 @@ enforces the mode on every invocation.
   a reply arriving and the status update. Consumers that need live state use
   `herdr agent get` and the pending files.
 
-### `pending/<worker-pane-id>.json` — delivery receipt (written by worker)
+### `pending/<worker-pane-id>.json` — delivery receipt (written by worker ONLY on failed delivery)
+
+The worker delivers its own reply first. A receipt exists **only when that
+failed** — rejected with `agent_blocked`, errored, or impossible — so the
+guardian can take over. A successful reply never leaves a receipt behind.
 
 ```json
 {
@@ -89,10 +93,11 @@ enforces the mode on every invocation.
 }
 ```
 
-The `pane` field is the authoritative owner; the file name is advisory (task
-text composed by the main session can mis-name it). Delivery deduplicates by
-content hash against `sent/`: a receipt that survives a successful self-reply
-cannot cause a second delivery.
+The `pane` field is the authoritative owner (read from the worker's own
+environment); the file name is advisory. The guardian picks receipts up on the
+worker's `idle`/`done` events and on main-session events, matching by the
+`pane` field, and deduplicates by content hash against `sent/`. A receipt
+therefore exists only while its message has not been delivered.
 
 A worker with a finished result writes this **before** attempting its reply.
 It then sends the reply itself and, on success, **deletes the pending file**.

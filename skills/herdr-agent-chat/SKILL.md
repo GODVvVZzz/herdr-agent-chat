@@ -50,17 +50,15 @@ herdr agent prompt sc-<task> "<task description>
 Rules:
 - Work autonomously to completion; do not stop to ask for confirmation.
 - When done, write the full result (summary, conclusions, key files) to /tmp/herdr-agent-chat/<task>.md
-- Write a delivery receipt /tmp/herdr-agent-chat/pending/<your-pane-ID>.json — the canonical
-  file name is the value of YOUR HERDR_PANE_ID environment variable (never paste the
-  variable name literally), containing:
-  {"pane":"<your-pane-ID>","target":"<main-pane-ID-literal>","summary":"<one-line summary>","detail":"/tmp/herdr-agent-chat/<task>.md"}
-  The guardian matches receipts by the pane field inside the JSON, not the file name.
 - Then send the reply (execute verbatim; the target is the main session's pane ID literal):
   herdr agent prompt <main-pane-ID-literal> '[agent-chat] <task>: <one-line summary> details: /tmp/herdr-agent-chat/<task>.md'
-- After a successful reply, delete the receipt file — it only exists so the
-  guardian plugin can deliver on your behalf if the reply failed.
-- If the reply is rejected with agent_blocked, retry once after 30 s; if it still
-  fails, keep the receipt file and stop retrying — the guardian takes over."
+- If the reply is rejected with agent_blocked, retry once after 30 s. If it still
+  fails (or cannot be attempted), write a delivery receipt so the guardian plugin
+  delivers on your behalf:
+  /tmp/herdr-agent-chat/pending/<value-of-your-HERDR_PANE_ID>.json containing
+  {"pane":"<value of your own HERDR_PANE_ID env var>","target":"<main-pane-ID-literal>","summary":"<one-line summary>","detail":"/tmp/herdr-agent-chat/<task>.md"}
+  The guardian matches receipts by the pane field, not the file name. A successful
+  reply means NO receipt — never write one preemptively."
 ```
 
 Key points:
