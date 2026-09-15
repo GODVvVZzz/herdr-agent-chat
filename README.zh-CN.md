@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/hero-zh.png" alt="herdr-agent-chat — 在 Herdr panes 间聊天式委派，全程无人阻塞" width="100%">
+</div>
+
 # herdr-agent-chat
 
 <div align="center">
@@ -39,7 +43,7 @@ herdr plugin install GODVvVZzz/herdr-agent-chat/plugin
 ## 工作原理
 
 <div align="center">
-  <img src="assets/architecture.svg" alt="主会话经 herdr pane 与 worker 双向通信,守护插件监听 pane 事件" width="100%">
+  <img src="assets/architecture.zh.svg" alt="主会话经 herdr pane 与 worker 双向通信,守护插件监听 pane 事件" width="100%">
 </div>
 
 一条边界规则:**agent 能行动时,协议驱动它;agent 不能行动时——阻塞、死亡、沉默——守护插件接管。**

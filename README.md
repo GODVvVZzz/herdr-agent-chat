@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/hero.png" alt="herdr-agent-chat — chat-like delegation across Herdr panes. Nobody blocks." width="100%">
+</div>
+
 # herdr-agent-chat
 
 <div align="center">

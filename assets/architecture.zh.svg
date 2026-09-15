@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="480" viewBox="0 0 1000 480" role="img" aria-label="架构">
+  <defs>
+    <marker id="arr-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10z" fill="#4fd6be"/>
+    </marker>
+    <marker id="arr-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10z" fill="#ff9e64"/>
+    </marker>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10z" fill="#7aa2f7"/>
+    </marker>
+  </defs>
+
+  <rect x="0.75" y="0.75" width="998.5" height="478.5" rx="16" fill="#16161e" stroke="#2a2b3d" stroke-width="1.5"/>
+
+  <circle cx="28" cy="28" r="5" fill="#ff5f57"/>
+  <circle cx="48" cy="28" r="5" fill="#febc2e"/>
+  <circle cx="68" cy="28" r="5" fill="#28c840"/>
+  <text x="500" y="33" fill="#565f89" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">herdr-agent-chat · 架构</text>
+  <line x1="16" y1="52" x2="984" y2="52" stroke="#2a2b3d" stroke-width="1"/>
+
+  <text x="175" y="88" fill="#565f89" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle" letter-spacing="1.5">人机通道</text>
+  <text x="500" y="88" fill="#565f89" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle" letter-spacing="1.5">通信</text>
+  <text x="800" y="88" fill="#565f89" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle" letter-spacing="1.5">WORKERS</text>
+
+  <!-- main session -->
+  <rect x="50" y="120" width="250" height="140" rx="14" fill="#1a1c28" stroke="#4fd6be" stroke-width="1.6"/>
+  <rect x="66" y="138" width="48" height="10" rx="3" fill="#4fd6be"/>
+  <rect x="66" y="156" width="120" height="7" rx="2" fill="#4fd6be" opacity="0.28"/>
+  <rect x="66" y="170" width="96" height="7" rx="2" fill="#4fd6be" opacity="0.18"/>
+  <text x="175" y="210" fill="#4fd6be" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="16" font-weight="700" text-anchor="middle">主会话</text>
+  <text x="175" y="232" fill="#9aa5ce" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">你直接对话的 agent</text>
+  <text x="175" y="250" fill="#565f89" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" text-anchor="middle">claude code · HERDR_PANE_ID</text>
+
+  <!-- human -->
+  <rect x="90" y="310" width="170" height="44" rx="10" fill="#1a1c28" stroke="#2a2b3d" stroke-width="1.2"/>
+  <text x="175" y="337" fill="#c0caf5" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle">你</text>
+  <line x1="175" y1="260" x2="175" y2="310" stroke="#565f89" stroke-width="1.2"/>
+  <text x="182" y="288" fill="#565f89" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11">对话</text>
+
+  <!-- workers -->
+  <rect x="700" y="110" width="240" height="88" rx="12" fill="#1a1c28" stroke="#ff9e64" stroke-width="1.5"/>
+  <rect x="716" y="128" width="40" height="8" rx="2" fill="#ff9e64"/>
+  <text x="820" y="158" fill="#ff9e64" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="middle">worker · sc-a</text>
+  <text x="820" y="178" fill="#9aa5ce" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle">免确认 · 真实 pane 可围观</text>
+
+  <rect x="700" y="220" width="240" height="88" rx="12" fill="#1a1c28" stroke="#ff9e64" stroke-width="1.5"/>
+  <rect x="716" y="238" width="40" height="8" rx="2" fill="#ff9e64"/>
+  <text x="820" y="268" fill="#ff9e64" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="middle">worker · sc-b</text>
+  <text x="820" y="288" fill="#9aa5ce" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle">可并行 · 任意 agent kind</text>
+
+  <!-- task -->
+  <path d="M300 155 C420 145, 520 140, 698 145" fill="none" stroke="#4fd6be" stroke-width="1.6" marker-end="url(#arr-cyan)"/>
+  <rect x="430" y="128" width="150" height="28" rx="14" fill="#16161e" stroke="#2a2b3d" stroke-width="1"/>
+  <text x="505" y="147" fill="#4fd6be" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">派活 · agent prompt</text>
+
+  <!-- report -->
+  <path d="M698 250 C520 260, 420 250, 300 220" fill="none" stroke="#ff9e64" stroke-width="1.6" marker-end="url(#arr-orange)"/>
+  <rect x="400" y="248" width="210" height="28" rx="14" fill="#16161e" stroke="#2a2b3d" stroke-width="1"/>
+  <text x="505" y="267" fill="#ff9e64" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">回报 · [agent-chat] + 结果文件</text>
+
+  <!-- guardian -->
+  <rect x="350" y="350" width="300" height="72" rx="12" fill="#1a1c28" stroke="#7aa2f7" stroke-width="1.5" stroke-dasharray="7 4"/>
+  <text x="500" y="380" fill="#7aa2f7" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="14" font-weight="700" text-anchor="middle">守护插件</text>
+  <text x="500" y="402" fill="#9aa5ce" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle">事件驱动 · 阻塞 / 死亡 / 沉默 → 代为送达</text>
+
+  <path d="M780 308 C760 330, 700 350, 652 365" fill="none" stroke="#7aa2f7" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arr-blue)"/>
+  <text x="745" y="338" fill="#7aa2f7" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle">pane 事件</text>
+  <path d="M350 380 C290 360, 240 300, 205 262" fill="none" stroke="#7aa2f7" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arr-blue)"/>
+  <text x="325" y="348" fill="#7aa2f7" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="11" text-anchor="middle">代投 · toast</text>
+
+  <text x="500" y="458" fill="#565f89" font-family="PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">agent 能行动 → 协议驱动 · agent 不能行动 → 守护接管</text>
+</svg>
