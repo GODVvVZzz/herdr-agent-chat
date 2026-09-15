@@ -6,7 +6,7 @@
   <img src="assets/hero-zh.png" alt="herdr-agent-chat — 在 Herdr panes 间聊天式委派，全程无人阻塞" width="100%">
 </div>
 
-# herdr-agent-chat
+<h1 align="center">herdr-agent-chat</h1>
 
 <div align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-666666?labelColor=333333" alt="MIT license"></a>

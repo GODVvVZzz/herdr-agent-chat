@@ -6,7 +6,7 @@
   <img src="assets/hero.png" alt="herdr-agent-chat — chat-like delegation across Herdr panes. Nobody blocks." width="100%">
 </div>
 
-# herdr-agent-chat
+<h1 align="center">herdr-agent-chat</h1>
 
 <div align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-666666?labelColor=333333" alt="MIT license"></a>
