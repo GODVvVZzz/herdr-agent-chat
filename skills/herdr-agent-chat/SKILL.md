@@ -50,10 +50,11 @@ herdr agent prompt sc-<task> "<task description>
 Rules:
 - Work autonomously to completion; do not stop to ask for confirmation.
 - When done, write the full result (summary, conclusions, key files) to /tmp/herdr-agent-chat/<task>.md
-- Write a delivery receipt /tmp/herdr-agent-chat/pending/<your-pane-ID>.json — the file
-  name is the value of YOUR HERDR_PANE_ID environment variable (never paste the
+- Write a delivery receipt /tmp/herdr-agent-chat/pending/<your-pane-ID>.json — the canonical
+  file name is the value of YOUR HERDR_PANE_ID environment variable (never paste the
   variable name literally), containing:
-  {"target":"<main-pane-ID-literal>","summary":"<one-line summary>","detail":"/tmp/herdr-agent-chat/<task>.md"}
+  {"pane":"<your-pane-ID>","target":"<main-pane-ID-literal>","summary":"<one-line summary>","detail":"/tmp/herdr-agent-chat/<task>.md"}
+  The guardian matches receipts by the pane field inside the JSON, not the file name.
 - Then send the reply (execute verbatim; the target is the main session's pane ID literal):
   herdr agent prompt <main-pane-ID-literal> '[agent-chat] <task>: <one-line summary> details: /tmp/herdr-agent-chat/<task>.md'
 - After a successful reply, delete the receipt file — it only exists so the

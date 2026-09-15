@@ -82,11 +82,17 @@ enforces the mode on every invocation.
 
 ```json
 {
+  "pane": "wY:p3",
   "target": "wY:p1",
   "summary": "auth test fixed, 3 files changed",
   "detail": "/tmp/herdr-agent-chat/sc-auth-fix.md"
 }
 ```
+
+The `pane` field is the authoritative owner; the file name is advisory (task
+text composed by the main session can mis-name it). Delivery deduplicates by
+content hash against `sent/`: a receipt that survives a successful self-reply
+cannot cause a second delivery.
 
 A worker with a finished result writes this **before** attempting its reply.
 It then sends the reply itself and, on success, **deletes the pending file**.
@@ -96,7 +102,8 @@ it later. Delivery is deduplicated by moving the file to `sent/`.
 
 ### `sent/`, `.notified/` — guardian-private
 
-`sent/` holds archived receipts (move = dedupe). `.notified/` holds one-shot
+`sent/` holds archived receipts (move = dedupe; the content hashes of archived
+receipts are the delivered-record). `.notified/` holds one-shot
 markers so alarms (blocked, dead) fire exactly once per episode; the blocked
 marker is cleared when the worker resumes `working`.
 

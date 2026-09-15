@@ -19,6 +19,7 @@ Delivery rules:
   main back from blocked with pending -> deliver everything (worker self-reply
                                          was rejected with agent_blocked earlier)
 """
+import hashlib
 import json
 import os
 import pathlib
@@ -45,10 +46,40 @@ def notify(body):
     herdr(["notification", "show", "agent-chat", "--body", body, "--sound", "request"])
 
 
+def receipt_hash(p):
+    # Identity of a delivery = where it goes + what it says. The pane field and
+    # file name are ownership/routing hints, not part of the identity.
+    canonical = json.dumps(
+        {
+            "target": p.get("target", ""),
+            "summary": p.get("summary", ""),
+            "detail": p.get("detail", ""),
+        },
+        sort_keys=True,
+    )
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def already_delivered(h):
+    for f in SENT.glob("*.json"):
+        try:
+            if receipt_hash(json.loads(f.read_text())) == h:
+                return True
+        except (json.JSONDecodeError, OSError):
+            continue
+    return False
+
+
 def deliver(pf, main_pane, name):
     try:
         p = json.loads(pf.read_text())
     except (json.JSONDecodeError, OSError):
+        return False
+    h = receipt_hash(p)
+    if already_delivered(h):
+        # A receipt can survive a successful self-reply (e.g. the worker
+        # deleted the wrong path). Archive silently — never deliver twice.
+        pf.rename(SENT / pf.name)
         return False
     target = p.get("target") or main_pane
     summary = p.get("summary", "completed")
@@ -107,8 +138,13 @@ def main():
     if pane_id == main_pane:
         if kind == "pane_agent_status_changed" and status in ("working", "idle", "done"):
             for pf in sorted(PENDING.glob("*.json")):
-                t = tasks.get(pf.stem) or {}
-                deliver(pf, main_pane, t.get("name", pf.stem))
+                try:
+                    p = json.loads(pf.read_text())
+                except (json.JSONDecodeError, OSError):
+                    continue
+                owner = p.get("pane") or pf.stem
+                t = tasks.get(owner) or {}
+                deliver(pf, main_pane, t.get("name", owner))
         return
 
     # Worker pane events.
@@ -118,10 +154,18 @@ def main():
     name = task.get("name", pane_id)
 
     if kind == "pane_agent_status_changed" and status in ("idle", "done"):
-        pf = PENDING / f"{pane_id}.json"
-        if pf.exists():
-            deliver(pf, main_pane, name)
-            notify(f"{name} completed")
+        # Receipts are matched by the pane field inside the JSON, not by file
+        # name — a mis-named receipt (easy to produce when the main session
+        # composes the task text) must still be picked up exactly once.
+        for pf in sorted(PENDING.glob("*.json")):
+            try:
+                p = json.loads(pf.read_text())
+            except (json.JSONDecodeError, OSError):
+                continue
+            if (p.get("pane") or pf.stem) != pane_id:
+                continue
+            if deliver(pf, main_pane, name):
+                notify(f"{name} completed")
 
     elif kind == "pane_agent_status_changed" and status == "blocked":
         marker = NOTIFIED / f"{pane_id}.blocked"
