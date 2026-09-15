@@ -18,6 +18,8 @@ report back over the same channel when they're done. Nobody blocks.
         └── guardian plugin ──────────┘   blocked / dead / unanswered → delivered anyway
 ```
 
+![herdr-agent-chat demo: a main session delegates to a permission-free worker in a new pane; the worker reports back over the same channel; a killed worker triggers the guardian's death notification](assets/demo.gif)
+
 ## Why not built-in subagents?
 
 | | built-in subagents | herdr-agent-chat workers |

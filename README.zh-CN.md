@@ -15,6 +15,8 @@
         └── 守护插件 ─────────────────┘   阻塞 / 死亡 / 漏发 → 照样送达
 ```
 
+![herdr-agent-chat 演示:主会话向新 pane 里的免确认 worker 派活,worker 经同一通道回报;被杀的 worker 触发守护插件的死亡通知](assets/demo-zh.gif)
+
 ## 为什么不用内置 subagent?
 
 | | 内置 subagent | herdr-agent-chat worker |
