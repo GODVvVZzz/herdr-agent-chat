@@ -1,4 +1,8 @@
 <div align="center">
+  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
+</div>
+
+<div align="center">
   <img src="assets/hero.png" alt="herdr-agent-chat — chat-like delegation across Herdr panes. Nobody blocks." width="100%">
 </div>
 
@@ -9,8 +13,6 @@
   <img src="https://img.shields.io/badge/herdr-%E2%89%A5%200.9.0-4fd6be?labelColor=333333" alt="herdr 0.9.0+">
   <a href="https://herdr.dev/plugins/"><img src="https://img.shields.io/badge/herdr_marketplace-listed-7aa2f7?labelColor=333333" alt="listed in the herdr plugin marketplace"></a>
   <img src="https://img.shields.io/badge/Claude_Code-main_session-orange?labelColor=333333" alt="Claude Code main session">
-  ·
-  <a href="README.zh-CN.md">简体中文</a>
 </div>
 
 **Chat-like delegation between terminal agents running in [Herdr](https://herdr.dev).** Your main session spawns permission-free worker sessions in sibling panes, hands them tasks, and keeps talking to you — workers report back over the same channel when they're done. **Nobody blocks.**

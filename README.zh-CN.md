@@ -1,4 +1,8 @@
 <div align="center">
+  <a href="README.md">English</a> · <strong>简体中文</strong>
+</div>
+
+<div align="center">
   <img src="assets/hero-zh.png" alt="herdr-agent-chat — 在 Herdr panes 间聊天式委派，全程无人阻塞" width="100%">
 </div>
 
@@ -9,8 +13,6 @@
   <img src="https://img.shields.io/badge/herdr-%E2%89%A5%200.9.0-4fd6be?labelColor=333333" alt="herdr 0.9.0+">
   <a href="https://herdr.dev/plugins/"><img src="https://img.shields.io/badge/herdr_marketplace-listed-7aa2f7?labelColor=333333" alt="已上架 herdr 插件市场"></a>
   <img src="https://img.shields.io/badge/Claude_Code-main_session-orange?labelColor=333333" alt="Claude Code 主会话">
-  ·
-  <a href="README.md">English</a>
 </div>
 
 **在 [Herdr](https://herdr.dev) 里实现终端 agent 之间的聊天式委派。** 主会话在兄弟 pane 里拉起免确认的 worker 子会话、把任务发过去,然后继续和你对话——worker 干完活经同一通道回报,全程无人阻塞。
