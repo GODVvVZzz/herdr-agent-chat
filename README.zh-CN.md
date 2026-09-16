@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/Claude_Code-main_session-orange?labelColor=333333" alt="Claude Code 主会话">
 </div>
 
-**在 [Herdr](https://herdr.dev) 里实现终端 agent 之间的聊天式委派。** 主会话在兄弟 pane 里拉起免确认的 worker 子会话、把任务发过去,然后继续和你对话——worker 干完活经同一通道回报,全程无人阻塞。
+**在 [Herdr](https://herdr.dev) 里实现终端 agent 之间的聊天式委派。** 主会话在兄弟 pane 里拉起免确认的 worker 子会话(任务属于别的项目时,也可以直接去那个 workspace 开新 tab)、把任务发过去,然后继续和你对话——worker 干完活经同一通道回报,全程无人阻塞。
 
 ![herdr-agent-chat 演示:主会话向新 pane 里的免确认 worker 派活,worker 经同一通道回报;被杀的 worker 触发守护插件的死亡通知](assets/demo-zh.gif)
 

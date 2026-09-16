@@ -25,6 +25,11 @@ Everything is built on Herdr's public CLI (`herdr agent`, `herdr pane`,
 
 - Every pane is identified by its Herdr pane ID (e.g. `wY:p1`). This is the
   **only** address used on the wire.
+- Addresses are **global across all workspaces and tabs**: target resolution
+  scans every workspace, so a worker may live in any workspace (typically the
+  one whose project the task is about) while dispatch, replies, the manifest
+  and the guardian work unchanged. Agent names are likewise globally unique
+  among live agents — duplicates across workspaces are rejected as ambiguous.
 - The main session knows its own pane ID from the `HERDR_PANE_ID` environment
   variable injected into every Herdr pane.
 - Agent names (`[a-z][a-z0-9_-]{0,31}`, unique among live agents) are used to
@@ -72,6 +77,8 @@ enforces the mode on every invocation.
 
 - `main_pane` — reply address for every worker in this batch. This is how the
   guardian routes signals; written once at dispatch.
+- `tasks[].workspace` — *optional, display-only*: which workspace the worker
+  pane lives in. Routing never depends on it (pane IDs are global).
 - `tasks[].status` — `outstanding` → `done` (main confirmed the reply), or
   `failed` (worker disappeared; respawn is always a human decision).
 - The `status` field is a registry, not live state: there is a window between
@@ -147,8 +154,12 @@ queued until its current turn ends. Each reply opens exactly one turn.
 
 ## Lifecycle rules
 
-1. **Dispatch is non-blocking.** Main splits a sibling pane (right if wide,
-   down if narrow/tall; alternate directions for multiple workers), starts the
+1. **Dispatch is non-blocking.** Main picks the worker's home by where the
+   task's context lives: a sibling pane in its own tab (default; right if wide,
+   down if narrow/tall; alternate directions for multiple workers), or — when
+   the task is about another project with its own workspace — a fresh tab in
+   that workspace (`herdr tab create --workspace <id> --cwd <that project>`,
+   never a split or reuse of an existing foreign pane). Then it starts the
    worker with its CLI's unattended flag, sends the task, and ends its turn.
 2. **Health check.** 30–60 s after dispatch, main runs `herdr agent get` once.
    If the worker is `blocked`, main classifies the dialog: *mechanical*

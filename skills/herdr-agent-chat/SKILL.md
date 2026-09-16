@@ -25,6 +25,55 @@ passes you may combine this with the herdr skill; this skill is self-contained.
   recognized as an agent (rare), replies can still reach the pane but the
   harvest fallback is unavailable — fall back to pure file handoff (see Fallback).
 
+## Where the worker lives
+
+Default: a sibling pane in **your own tab** (the recipe below) — the user
+watches it work next to you. Choose by where the task's context lives, and say
+the choice out loud. **An explicit user instruction wins**: if the user asks
+for a tab, a pane, or a specific workspace — in whatever language ("开个 tab"
+means "open a tab") — do exactly that.
+
+- **Task about your own project** → sibling pane, or a fresh tab of your
+  workspace if it deserves a full-size pane:
+
+  ```bash
+  herdr pane get "$HERDR_PANE_ID"        # → your workspace_id
+  herdr tab create --workspace <your-ws-id> --cwd "$PWD" \
+      --label agent-chat-<task> --no-focus
+  ```
+
+  Always pass `--workspace` explicitly: omitting it targets the
+  UI-focused workspace, which may not be yours.
+- **Task about a different project that already has its own Herdr workspace**
+  (e.g. "go analyze the workflow in the mico workspace") → open the worker
+  **in that workspace**. Pane IDs and agent names are addressed globally, so
+  everything else in this skill — dispatch, replies, manifest, guardian — works
+  unchanged:
+
+  ```bash
+  # find the target workspace: label + workspace_id + its checkout path
+  herdr workspace list
+
+  # fresh tab over there → clean shell pane; read .result.root_pane.pane_id
+  herdr tab create --workspace <ws-id> --cwd <that project's path> \
+      --label agent-chat-<task> --no-focus
+
+  # then start + dispatch exactly as in the recipe below
+  herdr agent start sc-<task> --kind claude --pane <new-pane-id> -- --dangerously-skip-permissions
+  ```
+
+  Cross-workspace rules:
+  - Never split or reuse an existing pane there — foreign panes may be
+    mid-session with an agent you must not disturb. A fresh `tab create` is
+    always a clean shell; if `agent start` fails right after, the shell may
+    still be initializing — retry once after a few seconds.
+  - cwd is the target workspace's own checkout path (`worktree.checkout_path`
+    from `workspace list`, or explicit `--cwd`) — **never** your `$PWD`.
+  - Always `--no-focus`: don't yank the user out of their current workspace.
+    Tell the user which workspace got the pane.
+  - Worker names are unique across **all** workspaces, not just yours — keep
+    the `sc-<task>` convention.
+
 ## Spawning a worker
 
 ```bash
@@ -76,8 +125,9 @@ Key points:
 - `--dangerously-skip-permissions` is mandatory; otherwise the worker stalls at
   permission prompts nobody answers. If environment policy disables it, report to
   the user — never work around it.
-- Parallel workers: one pane and one unique name each; avoid consecutive
-  same-direction splits (alternate right/down or use `--ratio`).
+- Parallel workers: one pane and one unique name each (names are unique across
+  all workspaces); avoid consecutive same-direction splits (alternate
+  right/down or use `--ratio`).
 - **Always write the dispatch registry** `/tmp/herdr-agent-chat/manifest.json`:
   `{"main_pane":"<your-pane-ID>","tasks":[{"name","pane_id","task","dispatched_at","status":"outstanding"}]}`.
   It is the routing contract of the guardian plugin — keep the field names stable.
@@ -86,6 +136,8 @@ Key points:
   the update lands; live checks use pending receipts and `agent get`.
 - Workers inherit the pane's cwd and environment; a fresh claude session carries
   your global skills and the `HERDR_*` variables and can execute the reply command.
+  For a cross-workspace worker this means it starts inside that project's
+  directory — exactly what a "go study that codebase" task needs.
 - Language: protocol markers (`[agent-chat]`, field keywords) are fixed; the task
   text, summaries and your reports follow the user's conversation language.
 

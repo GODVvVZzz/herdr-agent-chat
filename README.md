@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/Claude_Code-main_session-orange?labelColor=333333" alt="Claude Code main session">
 </div>
 
-**Chat-like delegation between terminal agents running in [Herdr](https://herdr.dev).** Your main session spawns permission-free worker sessions in sibling panes, hands them tasks, and keeps talking to you — workers report back over the same channel when they're done. **Nobody blocks.**
+**Chat-like delegation between terminal agents running in [Herdr](https://herdr.dev).** Your main session spawns permission-free worker sessions in sibling panes — or fresh tabs in any other workspace, when the task belongs to another project — hands them tasks, and keeps talking to you. Workers report back over the same channel when they're done. **Nobody blocks.**
 
 ![herdr-agent-chat demo: a main session delegates to a permission-free worker in a new pane; the worker reports back over the same channel; a killed worker triggers the guardian's death notification](assets/demo.gif)
 
