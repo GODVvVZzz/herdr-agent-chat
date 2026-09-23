@@ -77,6 +77,22 @@ means "open a tab") — do exactly that.
 ## Spawning a worker
 
 ```bash
+# 0. sweep: recycle your own settled worker panes before opening a new one.
+#    The sweep script ships with the guardian plugin; resolve it from herdr's
+#    plugin registry. If it cannot be found, skip — sweep is an optimization,
+#    never a dispatch blocker.
+SWEEP=$(python3 - <<'PY'
+import json, os
+try:
+    for p in json.load(open(os.path.expanduser("~/.config/herdr/plugins.json"))):
+        if p.get("plugin_id", "").startswith("herdr-agent-chat"):
+            print(os.path.join(p["plugin_root"], "bin", "agent-chat-sweep.py")); break
+except OSError:
+    pass
+PY
+)
+[ -n "$SWEEP" ] && [ -f "$SWEEP" ] && python3 "$SWEEP" --target-cwd "$PWD"
+
 # 1. directory for result files
 mkdir -p /tmp/herdr-agent-chat
 
@@ -112,6 +128,14 @@ Rules:
 
 Key points:
 
+- **Sweep verdicts** (step 0): `REUSE <pane> <name>` → do **not** open a pane.
+  `herdr agent rename <old-name> <new-task-name>`, update that manifest entry
+  in place (new name, task, dispatched_at, `status":"outstanding"`, same
+  pane_id), and dispatch into the existing pane — every rule below (reply
+  target literal, receipt, result file) applies unchanged. Reuse requires the
+  worker settled, same project cwd, and context below ~40%: its loaded
+  knowledge of the codebase is the asset. `CLOSE`/`PRUNE` lines are already
+  executed by the script; `KEEP` lines — leave alone.
 - `agent start` waits until the worker is interactive-ready (default 30 s).
   `agent_not_ready` means it got stuck during startup: inspect with
   `herdr agent read <pane-id> --source recent-unwrapped --lines 40`, then classify —
@@ -194,6 +218,10 @@ land), tell the user to check `/tmp/herdr-agent-chat/` manually.
   carries another session's `main_pane` belongs to that session: never close
   or restart it — if it looks abandoned, tell its owner. This is the boundary
   when asked to "close the unused panes".
+- **Sweep runs only at dispatch time, only through the sweep script.** It
+  closes just your own settled panes (entries whose `main_pane` is yours) and
+  never a focused pane. Never sweep spontaneously, and never hand-close panes
+  beyond what the sweep would touch.
 - Do not dispatch into unrelated existing panes; only into panes you opened for
   this delegation.
 - A task text always carries three things: the **result file** (full content), the

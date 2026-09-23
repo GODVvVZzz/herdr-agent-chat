@@ -170,8 +170,12 @@ queued until its current turn ends. Each reply opens exactly one turn.
    down if narrow/tall; alternate directions for multiple workers), or — when
    the task is about another project with its own workspace — a fresh tab in
    that workspace (`herdr tab create --workspace <id> --cwd <that project>`,
-   never a split or reuse of an existing foreign pane). Then it starts the
-   worker with its CLI's unattended flag, sends the task, and ends its turn.
+   never a split or reuse of an existing foreign pane). Before opening a pane,
+   main may sweep its own settled worker panes: reuse a same-project worker
+   whose context is still light (rename + redispatch), mark-then-close the
+   rest. The sweep never touches panes owned by another main session, and
+   never closes a focused pane. Then it starts the worker with its CLI's
+   unattended flag, sends the task, and ends its turn.
 2. **Health check.** 30–60 s after dispatch, main runs `herdr agent get` once.
    If the worker is `blocked`, main classifies the dialog: *mechanical*
    (folder trust, task-scoped permission asks) → main answers it via
