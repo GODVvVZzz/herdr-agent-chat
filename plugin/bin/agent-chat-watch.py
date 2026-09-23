@@ -5,17 +5,22 @@ Reads one herdr plugin event from HERDR_PLUGIN_EVENT_JSON and routes the
 signals agents cannot send themselves. State lives on disk:
 
   /tmp/herdr-agent-chat/manifest.json        written by the main session at dispatch
-      {"main_pane": "wY:p1", "tasks": [{"name","pane_id","task","dispatched_at","status"}, ...]}
+      {"main_pane": "wY:p1",
+       "tasks": [{"name","pane_id","main_pane","task","dispatched_at","status"}, ...]}
   /tmp/herdr-agent-chat/pending/<pane>.json  written by a worker with a finished result
       {"target": "...", "summary": "...", "detail": "/tmp/herdr-agent-chat/<task>.md"}
   /tmp/herdr-agent-chat/sent/                archived pending files (dedupe by move)
   /tmp/herdr-agent-chat/.notified/           one-shot markers so alarms fire once
 
+Several main sessions can share this directory, so every task carries its own
+owner (`tasks[].main_pane`) and alarms are routed there; the top-level
+`main_pane` is the legacy fallback.
+
 Delivery rules:
   worker idle/done + pending exists   -> deliver the reply, archive pending
-  worker blocked                      -> tell main + toast (once, until resumed)
+  worker blocked                      -> tell the task's main + toast (once, until resumed)
   worker pane exited/closed while its task is still outstanding
-                                      -> tell main + toast (once)
+                                      -> tell the task's main + toast (once)
   main back from blocked with pending -> deliver everything (worker self-reply
                                          was rejected with agent_blocked earlier)
 """
@@ -133,9 +138,21 @@ def main():
     if not main_pane:
         return
 
+    # Routing: several main sessions share this registry, so each task carries
+    # its own owner (`tasks[].main_pane`) and its alarms go there; the
+    # top-level field is the legacy fallback. A pane registered as some task's
+    # owner is a main — its events sweep pending receipts, never match the
+    # worker rules below.
+    def task_owner(t):
+        return (t or {}).get("main_pane") or main_pane
+
+    main_panes = {main_pane} | {
+        t.get("main_pane") for t in manifest.get("tasks", []) if t.get("main_pane")
+    }
+
     # Main pane events: after a blocked period ends, sweep pending replies that
     # were rejected with agent_blocked while the main session was busy/blocked.
-    if pane_id == main_pane:
+    if pane_id in main_panes:
         if kind == "pane_agent_status_changed" and status in ("working", "idle", "done"):
             for pf in sorted(PENDING.glob("*.json")):
                 try:
@@ -144,7 +161,7 @@ def main():
                     continue
                 owner = p.get("pane") or pf.stem
                 t = tasks.get(owner) or {}
-                deliver(pf, main_pane, t.get("name", owner))
+                deliver(pf, pane_id, t.get("name", owner))
         return
 
     # Worker pane events.
@@ -172,7 +189,7 @@ def main():
         if not marker.exists():
             marker.touch()
             herdr([
-                "agent", "prompt", main_pane,
+                "agent", "prompt", task_owner(task),
                 f"[agent-chat] ⚠ {name} blocked — needs approval or an answer; inspect with agent read",
             ])
             notify(f"{name} blocked — main session notified")
@@ -188,7 +205,10 @@ def main():
         marker = NOTIFIED / f"{pane_id}.dead"
         if not marker.exists():
             marker.touch()
-            herdr(["agent", "prompt", main_pane, f"[agent-chat] ☠ {name} exited — task unfinished"])
+            herdr([
+                "agent", "prompt", task_owner(task),
+                f"[agent-chat] ☠ {name} exited — task unfinished",
+            ])
             notify(f"{name} exited")
 
 

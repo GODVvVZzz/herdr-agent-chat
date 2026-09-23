@@ -129,8 +129,13 @@ Key points:
   all workspaces); avoid consecutive same-direction splits (alternate
   right/down or use `--ratio`).
 - **Always write the dispatch registry** `/tmp/herdr-agent-chat/manifest.json`:
-  `{"main_pane":"<your-pane-ID>","tasks":[{"name","pane_id","task","dispatched_at","status":"outstanding"}]}`.
+  `{"main_pane":"<your-pane-ID>","tasks":[{"name","pane_id","main_pane","task","dispatched_at","status":"outstanding"}]}`.
   It is the routing contract of the guardian plugin — keep the field names stable.
+  Each entry repeats `main_pane` (your pane ID): the guardian routes that
+  worker's blocked/death alarms to the entry's owner, so parallel main sessions
+  sharing this registry never steal each other's signals. **Merge, never
+  overwrite**: read the current manifest first and update/append only entries
+  you dispatched — another main session's entries must survive your write.
   Set a task's `status` to `done` after verifying its reply; mark `failed` when a
   worker disappears. Never treat `status` as live state — a reply can arrive before
   the update lands; live checks use pending receipts and `agent get`.
@@ -181,6 +186,14 @@ land), tell the user to check `/tmp/herdr-agent-chat/` manually.
 - Never answer a worker's approval/question dialog blindly: inspect with
   `agent get` + `agent read`, classify (mechanical → least-privilege answer;
   substantive → ask the user).
+- **Mark, then close.** Before closing a worker pane — even on an explicit
+  user request — set its manifest entry `done` (reply verified) or `failed`
+  first. The guardian reports any pane closed while its task is still
+  `outstanding` as a death (`☠`); it cannot know a cleanup was deliberate.
+- **Only close panes you dispatched.** A worker pane whose manifest entry
+  carries another session's `main_pane` belongs to that session: never close
+  or restart it — if it looks abandoned, tell its owner. This is the boundary
+  when asked to "close the unused panes".
 - Do not dispatch into unrelated existing panes; only into panes you opened for
   this delegation.
 - A task text always carries three things: the **result file** (full content), the

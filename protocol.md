@@ -67,6 +67,7 @@ enforces the mode on every invocation.
     {
       "name": "sc-auth-fix",
       "pane_id": "wY:p3",
+      "main_pane": "wY:p1",
       "task": "one-line task description",
       "dispatched_at": "2026-09-14 21:36:13 +0800",
       "status": "outstanding"
@@ -75,8 +76,15 @@ enforces the mode on every invocation.
 }
 ```
 
-- `main_pane` — reply address for every worker in this batch. This is how the
-  guardian routes signals; written once at dispatch.
+- `tasks[].main_pane` — the pane of the main session that dispatched this
+  worker. This is how the guardian routes that worker's signals (⚠ blocked,
+  ☠ dead); written once at dispatch. Several main sessions share one
+  registry, so ownership is per task — one session's dispatch or cleanup
+  never reroutes another session's alarms.
+- `main_pane` (top level) — legacy field: the dispatching session's pane at
+  the time it last wrote the manifest. Kept as the fallback address for
+  malformed receipts and entries missing the per-task field; routing reads
+  `tasks[].main_pane` first.
 - `tasks[].workspace` — *optional, display-only*: which workspace the worker
   pane lives in. Routing never depends on it (pane IDs are global).
 - `tasks[].status` — `outstanding` → `done` (main confirmed the reply), or
@@ -84,6 +92,9 @@ enforces the mode on every invocation.
 - The `status` field is a registry, not live state: there is a window between
   a reply arriving and the status update. Consumers that need live state use
   `herdr agent get` and the pending files.
+- Writing is read-modify-write: read the current manifest first, then update
+  or append only entries you own. Never drop or rewrite entries you did not
+  write — another main session may own them.
 
 ### `pending/<worker-pane-id>.json` — delivery receipt (written by worker ONLY on failed delivery)
 
@@ -187,12 +198,18 @@ Subscribes to `pane.agent_status_changed`, `pane.exited`, `pane.closed`
 | Event | Condition | Action |
 |---|---|---|
 | status → `idle`/`done` | `pending/<pane>.json` exists | deliver receipt to its `target`, move to `sent/`, toast |
-| status → `blocked` | worker pane, first occurrence | `⚠` message to `main_pane` + toast; marker set |
+| status → `blocked` | worker pane, first occurrence | `⚠` message to the task's `main_pane` + toast; marker set |
 | status → `working` | blocked marker present | clear marker (episode over) |
-| `pane.exited`/`pane.closed` | task still `outstanding` | `☠` message to `main_pane` + toast; marker set |
-| main pane → `working`/`idle`/`done` | any pending receipts exist | deliver all (covers receipts that were rejected with `agent_blocked` while main was busy) |
+| `pane.exited`/`pane.closed` | task still `outstanding` | `☠` message to the task's `main_pane` + toast; marker set |
+| a main pane (`tasks[].main_pane` or top-level) → `working`/`idle`/`done` | any pending receipts exist | deliver all (covers receipts that were rejected with `agent_blocked` while main was busy) |
 
 Panes not listed in the manifest are ignored on first byte.
+
+The guardian cannot tell a deliberate close from a crash: any pane closed
+while its task is still `outstanding` triggers the `☠` alarm. Main sessions
+must therefore **mark, then close** — set the entry `done`/`failed` before
+running `herdr pane close` — and never close a pane whose entry is owned by
+another main session.
 
 ## Porting to other agent kinds
 
